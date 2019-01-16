@@ -67,6 +67,9 @@ Next we will explore closed-loop control, and some implementations.
 Finally, we will combine open-loop and closed-loop approaches by introducing trajectory tracking.
 
 \section{Constrained Optimization}
+
+\subsection{Formalization}
+
 Before presenting the optimal control problem it is first useful to briefly review a standard constrained optimization problem given by
 
 \begin{equation} \label{const}
@@ -90,6 +93,112 @@ and the necessary conditions for optimality are
 \end{equation}
 
 One way to think about the necessary conditions (Eq. \ref{noc}) for optimality is as a filter that takes in all points $x$ and outputs a subset of potential optimal points $x^*$. If several potential points exist that satisfy the NOC, these could be local optima.
+
+\subsection{Example}
+
+Let's present a constrained optimization problem as an example. \\
+Let $\mathbf{x}$ be $\mathbf{x} = (x_1, x_2)$. The constrained optimization problem is: 
+\begin{equation}\label{ex_optim}
+\begin{array}{c}
+\min_{\mathbf{x}} = x_1 + x_2 \\
+\text{subject to } x_1^2 + x_2^2 = 2 \\
+\end{array}
+\end{equation}
+
+
+In other words, we want to find $x_1$ and $x_2$ such that $x_1 + x_2$ is minimal and the point $\mathbf{x} = (x_1, x_2)$ belongs to the circle of radius $\sqrt(2)$ centered on O, as shown by the figure. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale = 0.7]{Constrainted_Optim1.png}
+    \caption{A constrained Optimization problem}
+    \label{fig:constr_optim}
+\end{figure}
+
+In this problem,
+\[ f(\mathbf{x}) = x_1 + x_2 \]
+\[ h(\mathbf{x}) = x_1^2 + x_2^2 - 2 \]
+The \textit{Lagrangian }function is
+\begin{equation}
+\begin{array}{c c c c c}
+ L(\mathbf{x}, \lambda) & =&  f(\mathbf{x}) & +& \lambda h(\mathbf{x}) \\
+  & =& x_1 + x_2 & + & \lambda(x_1^2 + x_2^2 - 2)
+\end{array}
+\end{equation}
+
+
+The necessary conditions for optimality are: 
+
+\begin{equation} \label{noc_optim1}
+\begin{array}{c c c}
+\nabla_\mathbf{x} L(\mathbf{x}^*,\lambda^*) &=& 0 \\
+\nabla_\lambda L(\mathbf{x}^*,\lambda^*) &=& 0 \\
+\end{array}
+\end{equation}
+
+Here, 
+
+\begin{equation} \label{noc_optim_dx}
+\nabla_\mathbf{x} L(\mathbf{x}^*,\lambda^*) = 
+\begin{bmatrix}
+    \frac{\partial L}{\partial x_1}(\mathbf{x}^*,\lambda^*) \\
+    \frac{\partial L}{\partial x_2}(\mathbf{x}^*,\lambda^*) 
+\end{bmatrix}
+=
+\begin{bmatrix}
+    1 + 2 \lambda^* x_1^* \\
+    1 + 2 \lambda^* x_2^*
+\end{bmatrix}
+= 
+\begin{bmatrix}
+    0 \\
+    0
+\end{bmatrix}
+\end{equation}
+
+and 
+\begin{equation} \label{noc_optim_dlambda}
+\nabla_\lambda L(\mathbf{x}^*,\lambda^*) = 
+x_1^*^2 + x_2^*^2 - 2 = 0
+\end{equation}
+Equation (\ref{noc_optim_dx}) gives 
+\begin{equation} \label{ex_sol_part1}
+    \begin{array}{c}
+        x_1^* = - \frac{1}{2 \lambda^*} \\
+        x_2^* = - \frac{1}{2 \lambda^*}
+    \end{array}
+\end{equation}
+
+Injecting (\ref{ex_sol_part1}) into (\ref{noc_optim_dlambda}) gives 
+
+\begin{equation} \label{ex_sol_part2}
+    \begin{array}{c}
+       \frac{1}{4 \lambda^*^2} + \frac{1}{4 \lambda^*^2} - 2 = 0 \\
+        \iff \lambda^* = \pm \frac{1}{2}
+    \end{array}
+\end{equation}
+
+Injecting (\ref{ex_sol_part2}) in (\ref{ex_sol_part1}): \\
+\[x_1 + x_2 = -2 \text{ if } \lambda^* = \frac{1}{2} \] and
+\[x_1 + x_2 = 2 \text{ if } \lambda^* = -\frac{1}{2} \] As a result, we choose $\lambda^* = \frac{1}{2} $ for which $x_1 + x_2$ is minimal.
+
+\paragraph{Conclusion:} The optimal solution of the constrained problem (\ref{ex_optim}) is:
+\begin{equation}\label{ex_sol2}
+    \begin{array}{c}
+    \mathbf{x}^* = (-1, -1)
+    \end{array}
+\end{equation}
+
+The solution (\ref{ex_sol2}) is presented in figure~\ref{fig:ex_sol}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale = 0.7]{Constrainted_Optim2.png}
+    \caption{Optimal solution of the constrained problem}
+    \label{fig:ex_sol}
+\end{figure}
+
+
 
 \section{Optimal Control Problem}
 
