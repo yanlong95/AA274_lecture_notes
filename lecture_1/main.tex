@@ -247,11 +247,11 @@ This kinematic model is governed by the no lateral slip and pure rolling constra
 
 \subsubsection*{"Tricycle" (or simple car) Model:}
 
-Unlike the unicycle model, this configuration type utilizes two rear standard wheels and an active steering wheel(s) in the front of the vehicle. The use of both differential drive and active steering allow the tricycle model to naturally model the kinematic constraints of a simple car\cite{sns}.
+Unlike the unicycle model, this configuration type utilizes two rear standard wheels and an active steering wheel(s) in the front of the vehicle. The tricycle model also has maneuverability of two, arising from the control of its linear speed (through it rear wheels) and the steering angle \cite{sns}. Note that a tricycle (or simple car) model does not have differential drive capability, and hence this loss in mobility is compensated by allowing steering angle control.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.4\textwidth]{tricycle}
+\includegraphics[width=0.5\textwidth]{tricycle}
 \caption{Tricycle Model}
 \end{figure}
 
@@ -263,9 +263,29 @@ The kinematic model of tricycle robots is as follows:
 \begin{pmatrix} \cos \xi \cos \theta \\ \cos \xi \sin \theta \\ \sin \xi \\ 0 \end{pmatrix} u_1 + \begin{pmatrix} 0 \\ 0 \\ 0 \\ 1 \end{pmatrix} u_2
 \]
 
-\textbf{Warning:} A kinematic state space model should only be interpreted as a subsystem of a more general dynamical model of the robot.
+The control inputs $(u_1, u_2)$ are the linear speed and the time derivative of the steering angle respectively.
 
-You control the robot by controlling actual forces and torques, not linear and angular speeds. Usually we assume that there is a black box that converts desired angular and linear velocities to actual torques on each wheel. Alternatively, we could reason directly with the dynamical model, but we won't do this until later in the class.
+
+\subsubsection*{Understanding Constraints: Instantaneous Axis of Rotation:}
+
+
+To understand the constraints put on different kind of robot models, we may analyze the instantaneous centre of rotation (ICR) of the robot. The constraint on lateral motion of a wheel can be represented by a \textit{zero motion line} that extends perpendicular to the plane of the wheel passing through its centre i.e. the horizontal axis. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{ICR}
+\caption{Instantaneous Centre of Rotation (ICR) for a differential drive robot (a) can lie anywhere along the line passing through the axes of its wheels. For a car-like robot with Ackermann steering (b), the ICR lies at the intersection of the \textit{zero motion lines} of the wheels. }
+\label{fig:ICR}
+\end{figure}
+
+In Figure \ref{fig:ICR}, the differential drive robot can adjust its ICR by varying the individual speeds of its wheels. For the car-like robot, this can be achieved by changing the steering angle of the front wheels. The distance between the ICR and the rigid body is the radius of rotational motion. Note that the ICR lies at infinity when the robot is executing pure linear motion. 
+
+Thus, we can see that despite having an extra set of lateral motion constraints, the mobility (dimensionality of the space that the robot can reach) of a car-like robot remains the same as a differential drive robot owing to the steering angle control.
+
+
+\textbf{Warning:} A kinematic state space model should only be interpreted as a subsystem of a more general dynamical model of the robot. The robot is commanded by controlling the actual forces and torques, not linear and angular speeds. Usually we assume that there is a black box that converts desired angular and linear velocities to actual torques on each wheel. Alternatively, we could reason directly with the dynamical model, but we won't do this until later in the class.
+
+
 
 \subsection*{Simplified car models}
 
@@ -298,7 +318,7 @@ $
 $
 
 $
-v= u_{1,max}\;\textup{cos}(\zeta_{max}),\;|w|\leq |v|\;\textup{tan}(\zeta_{max}) \rightarrow \textup{Dubin's car}
+v= u_{1,max}\;\textup{cos}(\zeta_{max}),\;|w|\leq |v|\;\textup{tan}(\zeta_{max}) \rightarrow \textup{Dubins' car}
 $
 
 \section*{Further Readings and Additional Resources}
@@ -337,7 +357,7 @@ L. Lin, H. Shih. \textit{Modeling and Adaptive Control of an Omni-Mecanum-Wheele
 \end{thebibliography}
 
 \subsubsection*{Contributors}
-Winter 2019: S. Bernardon, T. DeWeese,  A. Jagesten, P. Pipatpinyopong, G. Spellman, J. Malmstrom, M. Ricks, and V. Zhang
+Winter 2019: S. Bernardon, T. DeWeese,  A. Jagesten, P. Pipatpinyopong, G. Spellman, J. Malmstrom, M. Ricks, V. Zhang and V. Nayak
 \\
 Winter 2018: S. Spears, C. Covert, A. Hosler, Z. Chase, and H.M. Ewald
 
