@@ -4,6 +4,7 @@
 \usepackage[sc]{mathpazo}
 \usepackage{amsmath}
 \usepackage[T1]{fontenc}
+\usepackage{listings}
 \renewcommand{\sfdefault}{kurier}
 
 
@@ -382,6 +383,66 @@ z_1(0) = 10, z_2(0) = 0, z_1(1) &= 0, z_2(1) = 0, \\
 \end{equation}
 
 Then we can input these BVP and BC into Python to solve the problem.
+
+\subsubsection{Python Example for Indirect Methods - Problem Setup}
+
+Let's take a look at the unicycle model from a different perspective, and see how to solve this model in Python. We start with a side-view of a coupled rod-and-wheel system - ie a unicycle with a seat. This problem is derived from the paper by Tum et. al \cite{inverse_pendulum}.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width = \textwidth]{inverse_pendulum.png}
+    \caption{Inverse pendulum model \cite{inverse_pendulum}. Note that this can work for a unicycle as well, with some additional transformations on the input coordinates. We will ignore those for now and assume we have direct acceleration control of our wheel.}
+\end{figure}
+
+The dynamics of the system \cite{inverse_pendulum} are given as follows:
+
+\begin{align*}
+    y &= \begin{bmatrix} x \\ \dot{x} \\ \theta \\ \dot{\theta} \end{bmatrix}\\
+    \dot{y} &= \begin{bmatrix}
+        \dot{x} \\ u \\ \dot{\theta} \\
+        \frac{1}{I+ml^2}(mgl\sin(\theta) - c\dot{\theta}-ml\cos(\theta)u)
+    \end{bmatrix}
+\end{align*}
+
+Where $I,m,l,c$ are all known.
+
+Note that since this is a python example, we will spend little time deriving the model. For more information, see \cite{inverse_pendulum}. Our functional to minimize will be
+
+\[J = \int_0^{t_f} (600 + u^2 )dt \]
+
+Setting our state to be $z = [y,p,t_f]$ with time-rescaling, and using Hamiltonian techniques we get the following system:
+
+\begin{align*}
+    \frac{dz}{d\tau} &= z_9\begin{bmatrix}
+        z_2 \\ u \\ z_4 \\
+        \frac{1}{I+ml^2}(mgl\sin(z_3) - cz_4-ml\cos(z_3)u) \\
+        0 \\ -z_5 \\ \frac{-z_8}{I+ml^2}(mgl\cos(z_3) + ml\sin(z_3)u) \\ \frac{z_8c}{I+ml^2}-z_7 \\ 0
+    \end{bmatrix} \\
+    u &= \frac{1}{2}(\frac{z_8ml\cos(z_3)}{I+ml^2}-p_2)
+\end{align*}
+
+Finally, we have our boundary conditions: We want to go from a vertical position at the origin to a vertical position at 10 meters. This translates to
+
+\begin{align*}
+    z_0(0) &= z_1(0) = z_2(0) = z_3(0) = 0 \\
+    z_0(1) &= 10, z_1(1) = z_2(1) = z_3(1) = 0
+\end{align*}
+
+We also get a bonus boundary equation from our free $t_f$:
+
+\[u(1)^2 + p(1)^T\dot{y}(1) + 600 = 0\]
+
+\subsubsection{Python Example for Indirect Methods - Code}
+This code is available in the repo as ``inverted\_pendulum.py''. The crux of the code will revolve around using the scipy bvp\_solver package. There are many bvp solvers out there, but in general they all need the following things:
+
+\begin{enumerate}
+    \item An ode function ($\frac{dz}{d\tau}$)
+    \item A boundary condition function
+    \item An initial guess
+\end{enumerate}
+
+Please view the commented code for a thorough description of the process. The file ``inv\_pend\_plot.mp4'' shows a short video of the solution to the system.
+
 %--------------------------End of Example for Indirect Methods--------------------------%
 
 %% ------- WINTER 2019, LECTURE 4 SCRIBES, MAKE YOUR EDITS BELOW THIS LINE -------- %%
@@ -675,10 +736,13 @@ Ascher, U., \& Russell, R. D. \textit{Reformulation of boundary value problems i
 Notes from ee363 at Stanford University
 \textit{https://stanford.edu/class/ee363/lectures/lyap.pdf}
 
+\bibitem{inverse_pendulum}
+M. Tum, G. Gyeong, J. Park and Y. Lee, "Swing-up Control of a Single Inverted Pendulum on a Cart With Input and Output Constraints", \textit{Proceedings of the 11th International Conference on Informatics in Control, Automation and Robotics}, vol. 1, no. 1, pp. 475-482, 2014.
+
 \end{thebibliography}
 
 \subsubsection*{Contributors}
-Winter 2019: [Your Names Here]
+Winter 2019: Michael Kossyrev
 \\
 Winter 2018: Joseph Lorenzetti, Kenneth Hoffmann, Oriana Peltzer, Zhe Huang, William Mangram
 \end{document}
