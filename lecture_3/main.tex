@@ -201,31 +201,54 @@ The solution (\ref{ex_sol2}) is presented in figure~\ref{fig:ex_sol}.
 
 
 
-\section{Optimal Control Problem}
+\section{Motion Control}
+
+With an understanding of kinematic models for nonholonomic systems, the next step is applying those constraint relations to control the vehicle along a path from a given initial configuration to a desired final configuration. This control of a robot's movements from point A to point B is referred to as \textit{Motion Control}. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\textwidth]{MotionControl}
+\caption{Simple Robot Path}
+\end{figure}
+
+The aim of this discussion will be to provide the fundamentals of optimal control and trajectory optimization, as well as to develop an appreciation for the methods of achieving those paths via open-loop control, closed-loop control, and their combination. 
+
+\subsection{Optimal Control Problem}
+
+The mathematical definition of the optimal control problem can be written as such:
 
 \begin{equation} \label{optcont}
 \begin{split}
-\underset{u}{\text{min}} \:\: &h(x(t_f),t_f) + \int_{t_0}^{t_f} g(x(t),u(t),t) dt \\
-\text{subject to} \:\: &\dot{x}(t) = a(x(t),u(t),t) \\
-&x(t) \in \mathcal{X}, \quad u(t) \in \mathcal{U}
+\underset{\mathbf{u}}{\text{min}} \:\: &h(\mathbf{x}(t_f),t_f) + \int_{t_0}^{t_f} g(\mathbf{x}(t),\mathbf{u}(t),t) dt \\
+\text{subject to} \:\: &\dot{\mathbf{x}}(t) = a(\mathbf{x}(t),\mathbf{u}(t),t) \\
+&\mathbf{x}(t) \in \mathcal{X}, \quad \mathbf{u}(t) \in \mathcal{U}
 \end{split}
 \end{equation}
 
-In general, $x(t) \in \mathbb{•}{R}^n$, $u(t) \in \mathbb{R}^m$, and the initial condition $x(0) = x_0$ is given. In the context of this course the constraint $x(t) \in \mathcal{X}$ is typically relaxed to just be $x(t) \in \mathbb{R}^n$. In other words there are no state constraints.
+In general, $\boldsymbol{x}(t)\in R^{n}$, $\boldsymbol{u}(t)\in R^{m}$, and the initial condition $\boldsymbol{x}(t_0)=\boldsymbol{x}_0$ is given. In the context of this course, the constraint $x(t) \in \mathcal{X}$ is typically relaxed to just be $\boldsymbol{x}(t)\in R^{n}$. In other words there are no state constraints.
 
-The problem given by Eq. \ref{optcont} contains many details. In the objective function, the term $h(x(t_f),t_f)$ represents a cost associated with the end condition. For example if you wanted to minimize time you could have $h = t_f$. Also in the objective function, the integral produces a path cost, or in other words produces penalties along the way from $t_0$ to $t_f$. This would be useful if you wanted to minimize fuel use: for example you could set $g = u^2$.
+The first constraint in the problem defines the differential constraints that represent the system dynamics, which are typically nonlinear.
 
-The first constraint in the problem defines the differential constraints that represent the system dynamics. These in general are nonlinear which is why they are represented as $a(x(t),u(t),t)$.
+Solving this optimal control problem involves minimizing a cost function, often denoted as $J$, which is the sum of (1) an integral of running cost that, at each time interval, penalizes the system based on the current state, $\boldsymbol{x}(t)$, and input, $\boldsymbol{u}(t)$ (i.e. we may want to minimize control effort), and (2) a terminal cost which penalizes the final state (i.e. we may want to minimize $t_f$). 
 
-Problem \ref{optcont} is typically solved to yield an open-loop trajectory and control, which are denoted as $x^*(t)$ and $u^*(t)$. Note that these are entire trajectories through time, not just individual points as we saw in Eq. \ref{const}. Since the control is open loop we also typically write
+It is important to remember that the integral is simply an additive operation, so this problem may be approached using a discretization of the integral where we add immediate stage-wise costs. With this is mind, we prefer to use this generalized model for two reasons: (1) there are a number of tasks that may be modeled by additive costs (i.e. fuel consumption, control effort, etc.), and (2) it dramatically simplifies computation (linear constraint with a number of key, deep, structural results that stem from such an additive assumption).
 
-$$u^*(t) = f(x(t_0),t)$$
+For those interested in learning more about Optimal Control Theory, a recommended reference to check out is: \textit{D. K. Kirk. Optimal Control Theory: An introduction. Dover Publications, 2004.}
 
-to indicate that the control is a function of time only, and does not utilize any state feedback.
+\subsection{Form of Optimal Control}
+
+There exist different forms of an optimized control function, the focus of which revolves around the use of feedback in the iteration of the aforementioned cost function. For notation's sake, if our control input $\mathbf{u}^*(t)$ represents optimality, then $\mathbf{u}^*(t)$ is the control function that minimizes the cost function in the optimization problem. 
+
+If the optimal control input resulting from problem \ref{optcont} can be written in the form $\mathbf{u}^*(t) = \pi(\mathbf{x}(t),t)$, then the optimal control is said to be in closed-loop form. Alternatively, if it is of the form $\mathbf{u}^*(t) = f(\mathbf{x}(t_0),t)$, then the optimal control is said to be open-loop. 
+
+There are benifits to both closed- and open-loop control. While closed-loop control is more computationally intensive, open-loop control is less robust to disturbances (i.e. a gust of wind). Often, a good compromise is is a two-step design:  
+$$\mathbf{u}^*(t) = u\mathbb{u_d}(t) + \pi(\mathbf{x}(t),\mathbf{x}(t) - \mathbf{x_d}(t))$$
+Here, open-loop control is first used to generate a desired trajectory, $\mathbf{x_d}$, and it's corresponding input, $\mathbf{u_d}$, and then closed-loop control is performed on a simplified trajectory tracking problem.
 
 It is important to realize the difference between solving these optimal control problems and solving general optimization problems. As mentioned, in optimal control we are solving for \textit{trajectories}, and not just points. For any given set of boundary conditions there are an infinite number of possible trajectories, and with the dynamics constraints also involved this becomes a formidable task.
 
 The tools used to solve this Problem \ref{optcont} are generally classified as \textit{\textbf{Indirect Methods}} and \textit{\textbf{Direct Methods}}.
+
 
 
 
