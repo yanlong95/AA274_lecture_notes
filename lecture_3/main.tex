@@ -280,44 +280,51 @@ From here we can declare the NCO's that our system requires for optimality:
 
 The first equation represents the derivative of the Hamiltonian with respect to your individual Lagrange Multipliers which interestingly enough gives back the kinematic state equations of the robot. The second equation is called the costate of your function - looking to optimize the function over continuous infinite time, the lagrange multipliers become functions of time. The final equation is the optimality condition which is simply the Hamiltonian differiniated with respect to the constraint producing an algebraic equation. This is \textbf{under the assumption that we have no state constraints} which is sufficient for our focus of the class. The tedious part of optimal control is now solving these equations: we have produced 2N optimization variables in $x^*(t)$ and $p^*(t)$ with one M varibale $u^*(t)$ totaling 2N + M variables alongside our 2N differinitable equations and M algebraic equation.
 
+\subsubsection{Boundary Conditions}
 To solve we must impose boundary conditions on our function with respect to the robot's final position and time such that:
 
 \begin{equation} \label{hamiltonianBCs}
 \begin{split}
-[\frac{\partial{h}}{\partial{x}}(x^*(t_f), t_f - p^*(t_f))]^T\delta{x_f}\ + [H(x^*(t_f), u^*(t_f), p^*(t_f), t_f + \frac{\partial{h}}{\partial{t}}(x^*(t_f), t_f)]\delta{x_f} = 0\\
+[\frac{\partial{h}}{\partial{x}}(x^*(t_f), t_f - p^*(t_f))]^T\delta{x_f}\ + [H(x^*(t_f), u^*(t_f), p^*(t_f), t_f) + \frac{\partial{h}}{\partial{t}}(x^*(t_f), t_f)]\delta{t_f} = 0\\
 \end{split}
 \end{equation}
+Where $h(\mathbf{x}(t_f),t_f)$ comes from the loss function, $J := h(\mathbf{x}(t_f),t_f) + \int_{t_0}^{t_f}  g(\mathbf{x}(t),\mathbf{u}(t),t) dt$ and $H(x^*(t_f), u^*(t_f), p^*(t_f), t_f)$ is the Hamiltonian defined in \ref{hamiltonian}
+\\
+\\
 
-which produces four possible solutions to satisfy the equation:
-
-$t_f$ = fixed and $x(t_f)$ = fixed \dots $\delta{t_f}$ = 0 and $\delta{x(t_f)}$ = 0
-
-$$\textbf{BC}: x^*(t_0) = x_0$$
-$$x^*(t_f) = x_f$$
-
-
-$t_f$ = fixed and $x(t_f)$ = free \dots $\delta{t_f}$ = 0 and $\delta{x(t_f)}$ = arbitrary
-
-$$\textbf{BC}: x^*(t_0) = x_0$$
-$$[\frac{\partial{h}}{\partial{x}}(x^*(t_f), - p^*(t_f))] = 0$$
-
-
-$t_f$ = free and $x(t_f)$ = fixed \dots $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = 0
+This produces four possible solutions to satisfy the equation in \ref{hamiltonianBCs}:
+\subsubsection{Boundary Condition Scenario 1: $t_f$ = fixed and $x(t_f)$ = fixed \dots $\delta{t_f}$ = 0 and $\delta{x(t_f)}$ = 0}
+Plug these values of $\delta{t_f}$ and $\delta{x(t_f)}$ into \ref{hamiltonianBCs}
 
 $$\textbf{BC}: x^*(t_0) = x_0$$
 $$x^*(t_f) = x_f$$
-$$[H(x^*(t_f), u^*(t_f), p^*(t_f), t_f + \frac{\partial{h}}{\partial{t}}(x^*(t_f), t_f)]\delta{x_f} = 0$$
+If $t_f$ and $x(t_f)$ are fixed, then the equation in \ref{hamiltonianBCs} goes to $0$, and the optimal boundary conditions are simply the original constraints given to us.
 
 
+\subsubsection{Boundary Condition Scenario 2: $t_f$ = fixed and $x(t_f)$ = free \dots $\delta{t_f}$ = 0 and $\delta{x(t_f)}$ = arbitrary }
+Plug the above values of $\delta{t_f}$ and $\delta{x(t_f)}$ into \ref{hamiltonianBCs}
 
-$t_f$ = free and $x(t_f)$ = free \dots $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = arbitrary
+$$\textbf{BC}: x^*(t_0) = x_0$$
+$$[\frac{\partial{h}}{\partial{x}}(x^*(t_f), - p^*(t_f))] = 0$$
+Since $\delta t_f = 0$, the left hand side of \ref{hamiltonianBCs} goes to zero, so our extra boundary condition (along with the initial constraints given to us) is the right hand side of the equation without the $\delta{x_f(t_f)}$ in it, since it is simply a constant. 
+\subsubsection{Boundary Condition Scenario 3: $t_f$ = free and $x(t_f)$ = fixed \dots $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = 0  }
+Plug the above values of $\delta{t_f}$ and $\delta{x(t_f)}$ into \ref{hamiltonianBCs})
+
+$$\textbf{BC}: x^*(t_0) = x_0$$
+$$x^*(t_f) = x_f$$
+$$[H(x^*(t_f), u^*(t_f), p^*(t_f), t_f) + \frac{\partial{h}}{\partial{t}}(x^*(t_f), t_f)] = 0$$
+Since $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = 0, the right hand side of \ref{hamiltonianBCs} goes to zero, so our extra boundary condition (along with the initial constraints given to us) is the left hand side of the equation without the $\delta{t_f}$ in it, since it is simply a constant.   
+\subsubsection{Boundary Condition Scenario 4: $t_f$ = free and $x(t_f)$ = free \dots $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = arbitrary }
+Plug the above values of $\delta{t_f}$ and $\delta{x(t_f)}$ into \ref{hamiltonianBCs}
 
 $$\textbf{BC}: x^*(t_0) = x_0$$
 $$[\frac{\partial{h}}{\partial{x}}(x^*(t_f), - p^*(t_f))] = 0$$
 $$[H(x^*(t_f), u^*(t_f), p^*(t_f), t_f + \frac{\partial{h}}{\partial{t}}(x^*(t_f), t_f)]\delta{x_f} = 0$$
+Since $\delta{t_f}$ = arbitrary and $\delta{x(t_f)}$ = arbitrary, we can split up \ref{hamiltonianBCs} into two equations, where the left and right hand sides of the equation are set to zero. Once these equations are split into two, the $\delta{t_f}$ and $\delta{x(t_f)}$ constants can be ignored, leading to the two extra conditions described above, along with the original given constraint, $x^*(t_0) = x_0$
 
-The last scenario is what we call a free final time state and introduces an unkown variable to our system of equations making it a set of 2N + M + 1. Think of this as an optimal control problem where we look to minimize the cost of our function at any given final time. We look at a thorough example for clarification.
+The last scenario ($t_f$ = free and $x(t_f)$ = free) is what we call a free final time state and introduces an unknown variable to our system of equations making it a set of 2N + M + 1. Think of this as an optimal control problem where we look to minimize the cost of our function at any given final time. We look at a thorough example for clarification.
 
+\subsection{$t_f$ = free and $x(t_f)$ = free Constrained Optimization Example}
 Let's consider an example of free final time. Consider a point that moves in one dimension. Control input of the system is acceleration of the point. Boundary conditions for positions and velocities at initial and final times are given, but the final time is not fixed.
 
 \begin{equation}\label{ExampleSCAndBC}%State Constraints and Boundary Conditions
